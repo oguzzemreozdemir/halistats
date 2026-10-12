@@ -19,20 +19,21 @@ export default function EntryCard({ entry, playerName, index = 0, onOpenProfile,
       </button>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={openProfile}
-            disabled={!openProfile}
-            className="truncate font-display text-[15px] font-bold capitalize text-white"
-          >
-            {playerName}
-          </button>
-          <span className="truncate text-[12px] text-slate-400">
-            {entry.city} / {entry.district}
-          </span>
+        {/* 1. satır: isim (tek başına → tam görünür) */}
+        <button
+          type="button"
+          onClick={openProfile}
+          disabled={!openProfile}
+          className="block max-w-full truncate text-left font-display text-[15px] font-bold capitalize leading-tight text-white"
+        >
+          {playerName}
+        </button>
+        {/* 2. satır: konum */}
+        <div className="mt-0.5 truncate text-[12px] text-slate-400">
+          {entry.city} / {entry.district}
         </div>
-        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+        {/* 3. satır: etiketler */}
+        <div className="mt-1 flex flex-wrap items-center gap-1 text-[11px]">
           <span className="rounded-md bg-field-cardhi px-1.5 py-0.5 text-slate-300">
             {entry.position}
           </span>
@@ -46,7 +47,9 @@ export default function EntryCard({ entry, playerName, index = 0, onOpenProfile,
           >
             {matchTypeLabel(entry.matchType)}
           </span>
-          <span>· {relativeDateLabel(entry.matchDate)}</span>
+          <span className="whitespace-nowrap pl-0.5 text-slate-500">
+            · {relativeDateLabel(entry.matchDate)}
+          </span>
         </div>
       </div>
 
