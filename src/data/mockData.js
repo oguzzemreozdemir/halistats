@@ -7,11 +7,12 @@
 // when Supabase is wired up.
 // ──────────────────────────────────────────────────────────────────────────
 
+// Oyuncular artık Supabase'deki `players` tablosundan gelir (PIN'ler kodda tutulmaz).
 export const PLAYERS = [
-  { id: 'p_ogi', name: 'ogi', pin: '1111' },
-  { id: 'p_arda', name: 'arda', pin: '2222' },
-  { id: 'p_deniz', name: 'deniz', pin: '3333' },
-  { id: 'p_onur', name: 'onur', pin: '4444' },
+  { id: 'p_ogi', name: 'ogi' },
+  { id: 'p_arda', name: 'arda' },
+  { id: 'p_deniz', name: 'deniz' },
+  { id: 'p_onur', name: 'onur' },
 ]
 
 // Selection option sets (used by the Add Entry form) ─────────────────────────

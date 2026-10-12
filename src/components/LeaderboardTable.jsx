@@ -8,7 +8,14 @@ const RANK_TONE = ['text-grass', 'text-emerald2', 'text-teal-300']
 //
 // No animated progress fill — it overlapped the row text. Just a clean premium
 // card with a subtle staggered fade-in so text is always readable.
-export default function LeaderboardTable({ rows, valueLabel, secondaryFn, highlightId, formatValue }) {
+export default function LeaderboardTable({
+  rows,
+  valueLabel,
+  secondaryFn,
+  highlightId,
+  formatValue,
+  onRowClick,
+}) {
   return (
     <div className="space-y-2">
       {rows.map((row, i) => {
@@ -16,10 +23,15 @@ export default function LeaderboardTable({ rows, valueLabel, secondaryFn, highli
         return (
           <motion.div
             key={row.player.id}
+            role={onRowClick ? 'button' : undefined}
+            onClick={onRowClick ? () => onRowClick(row.player.id) : undefined}
+            whileTap={onRowClick ? { scale: 0.985 } : undefined}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(i * 0.045, 0.27), type: 'spring', stiffness: 300, damping: 28 }}
-            className={`flex items-center gap-3 rounded-2xl border px-3.5 py-3 backdrop-blur-sm shadow-soft ${
+            className={`flex items-center gap-3 rounded-2xl border px-3.5 py-3 shadow-soft ${
+              onRowClick ? 'cursor-pointer' : ''
+            } ${
               isMe ? 'border-grass/50 bg-grass/10' : 'border-field-border bg-field-card/70'
             }`}
           >

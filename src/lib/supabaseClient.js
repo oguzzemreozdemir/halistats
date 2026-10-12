@@ -18,5 +18,8 @@ if (!supabaseConfigured) {
 }
 
 export const supabase = supabaseConfigured
-  ? createClient(url, anonKey, { auth: { persistSession: false } })
+  ? createClient(url, anonKey, {
+      // Oturum telefonda/tarayıcıda saklanır → her girişte PIN sorulmaz.
+      auth: { persistSession: true, autoRefreshToken: true, storageKey: 'halistats.auth' },
+    })
   : null

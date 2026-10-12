@@ -17,7 +17,7 @@ import {
 function StatRow({ label, agg, max }) {
   const pct = Math.max(5, Math.round((agg.goals / Math.max(1, max)) * 100))
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-field-border bg-field-card/70 px-3.5 py-3 backdrop-blur-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-field-border bg-field-card/70 px-3.5 py-3">
       <div className="absolute inset-y-0 left-0 bg-grass/8" style={{ width: `${pct}%` }} />
       <div className="relative flex items-center justify-between">
         <div className="min-w-0">
@@ -35,14 +35,17 @@ function StatRow({ label, agg, max }) {
   )
 }
 
-function ConclavePlayerRow({ name, agg, index = 0 }) {
+function ConclavePlayerRow({ name, agg, index = 0, onClick }) {
   const gpm = (agg.entries > 0 ? agg.goals / agg.entries : 0).toFixed(2)
   return (
     <motion.div
+      role={onClick ? 'button' : undefined}
+      onClick={onClick}
+      whileTap={onClick ? { scale: 0.985 } : undefined}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.045, type: 'spring', stiffness: 300, damping: 28 }}
-      className="flex items-center gap-3 rounded-2xl border border-field-border bg-field-card/70 px-3.5 py-3 backdrop-blur-sm"
+      className="flex items-center gap-3 rounded-2xl border border-field-border bg-field-card/70 px-3.5 py-3"
     >
       <Avatar name={name} size="sm" />
       <div className="min-w-0 flex-1">
@@ -60,7 +63,7 @@ function ConclavePlayerRow({ name, agg, index = 0 }) {
 }
 
 // Conclave page — ONLY entries where matchType === 'conclave'.
-export default function Conclave({ entries, players }) {
+export default function Conclave({ entries, players, onOpenProfile }) {
   const ce = conclaveEntries(entries)
   const total = aggregate(ce)
   const golL = topBy(ce, players, 'goals')
@@ -113,7 +116,13 @@ export default function Conclave({ entries, players }) {
         <SectionHeader title="Oyuncu Tablosu" />
         <div className="space-y-2">
           {playerRows.map((r, i) => (
-            <ConclavePlayerRow key={r.p.id} name={r.p.name} agg={r.agg} index={i} />
+            <ConclavePlayerRow
+              key={r.p.id}
+              name={r.p.name}
+              agg={r.agg}
+              index={i}
+              onClick={onOpenProfile ? () => onOpenProfile(r.p.id) : undefined}
+            />
           ))}
         </div>
       </section>

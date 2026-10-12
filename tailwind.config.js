@@ -25,7 +25,9 @@ export default {
       },
       boxShadow: {
         card: '0 8px 30px -12px rgba(0,0,0,0.6)',
-        glow: '0 0 0 1px rgba(34,197,94,0.18), 0 8px 30px -10px rgba(34,197,94,0.25)',
+        // Crisp green edge instead of a blurred glow — the blurred glow smeared
+        // (ghosted) on iOS Safari during scroll/animation. Ring only, no blur.
+        glow: '0 0 0 1px rgba(34,197,94,0.35)',
         soft: '0 2px 14px -6px rgba(0,0,0,0.5)',
       },
       backdropBlur: {

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 // slides smoothly between tabs with no manual measurement — robust on mobile.
 export default function TopTabs({ tabs, active, onChange }) {
   return (
-    <div className="no-scrollbar overflow-x-auto rounded-2xl border border-field-border bg-field-card/60 p-1 backdrop-blur-md shadow-soft">
+    <div className="no-scrollbar overflow-x-auto rounded-2xl border border-field-border bg-field-card/60 p-1 shadow-soft">
       <div className="flex w-max gap-1">
         {tabs.map((tab) => {
           const isActive = tab.id === active

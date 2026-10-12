@@ -12,21 +12,66 @@ const yesterdayStr = () => {
   return d.toISOString().slice(0, 10)
 }
 
+// Kayıtlı bir değeri chip listesine oturt: listede yoksa "Diğer" + serbest metin.
+function splitKnown(value, options) {
+  if (!value) return ['', '']
+  return options.includes(value) ? [value, ''] : ['Diğer', value === 'Diğer' ? '' : value]
+}
+
+function initialFrom(entry, lastLocation) {
+  if (!entry) {
+    return {
+      dateMode: 'today',
+      customDate: todayStr(),
+      city: lastLocation?.city || '',
+      cityOther: '',
+      district: lastLocation?.district || '',
+      districtOther: '',
+    }
+  }
+  const md = entry.matchDate || todayStr()
+  const [city, cityOther] = splitKnown(entry.city, CITIES)
+  const districtList = DISTRICTS[city] || ['Diğer']
+  const [district, districtOther] = splitKnown(entry.district, districtList)
+  return {
+    dateMode: md === todayStr() ? 'today' : md === yesterdayStr() ? 'yesterday' : 'custom',
+    customDate: md,
+    city,
+    cityOther,
+    district,
+    districtOther,
+  }
+}
+
 // Main page. Fast match-entry form — minimal typing, chip driven.
-export default function AddEntry({ player, lastLocation, onSave, saving = false }) {
-  const [dateMode, setDateMode] = useState('today') // today | yesterday | custom
-  const [customDate, setCustomDate] = useState(todayStr())
+// initialEntry verilirse "düzenleme" modunda açılır (alanlar dolu gelir).
+export default function AddEntry({
+  player,
+  lastLocation,
+  onSave,
+  saving = false,
+  initialEntry = null,
+  onCancel,
+}) {
+  const editing = !!initialEntry
+  const init = useMemo(() => initialFrom(initialEntry, lastLocation), [initialEntry]) // eslint-disable-line react-hooks/exhaustive-deps
+  const canChooseType = !!player?.isConclave // Maç Tipi sadece Conclave üyelerine
 
-  const [city, setCity] = useState(lastLocation?.city || '')
-  const [district, setDistrict] = useState(lastLocation?.district || '')
-  const [cityOther, setCityOther] = useState('')
-  const [districtOther, setDistrictOther] = useState('')
+  const [dateMode, setDateMode] = useState(init.dateMode) // today | yesterday | custom
+  const [customDate, setCustomDate] = useState(init.customDate)
 
-  const [position, setPosition] = useState('')
-  const [matchMode, setMatchMode] = useState('Normal')
-  const [matchType, setMatchType] = useState('conclave')
-  const [goals, setGoals] = useState(0)
-  const [assists, setAssists] = useState(0)
+  const [city, setCity] = useState(init.city)
+  const [district, setDistrict] = useState(init.district)
+  const [cityOther, setCityOther] = useState(init.cityOther)
+  const [districtOther, setDistrictOther] = useState(init.districtOther)
+
+  const [position, setPosition] = useState(initialEntry?.position || '')
+  const [matchMode, setMatchMode] = useState(initialEntry?.matchMode || 'Normal')
+  const [matchType, setMatchType] = useState(
+    canChooseType ? initialEntry?.matchType || 'conclave' : 'personal',
+  )
+  const [goals, setGoals] = useState(initialEntry?.goals ?? 0)
+  const [assists, setAssists] = useState(initialEntry?.assists ?? 0)
 
   const districtOptions = useMemo(() => {
     if (!city) return []
@@ -57,10 +102,11 @@ export default function AddEntry({ player, lastLocation, onSave, saving = false 
       district: resolvedDistrict,
       position,
       matchMode,
-      matchType,
+      matchType: canChooseType ? matchType : 'personal',
       goals,
       assists,
     })
+    if (editing) return // düzenlemede ekranı üst bileşen kapatır
     // reset performance fields but keep city/district selection
     setPosition('')
     setMatchMode('Normal')
@@ -71,6 +117,19 @@ export default function AddEntry({ player, lastLocation, onSave, saving = false 
 
   return (
     <div className="space-y-5 animate-fade-up">
+      {editing && (
+        <div className="flex items-center justify-between">
+          <div className="font-display text-[20px] font-extrabold text-white">Maçı düzenle</div>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-xl border border-field-border bg-field-card/70 px-3.5 py-2 text-[13px] font-semibold text-slate-300"
+          >
+            İptal
+          </button>
+        </div>
+      )}
+
       {/* Date */}
       <section>
         <SectionHeader title="Tarih" />
@@ -95,16 +154,18 @@ export default function AddEntry({ player, lastLocation, onSave, saving = false 
         )}
       </section>
 
-      {/* Match type */}
-      <section>
-        <SectionHeader title="Maç Tipi" />
-        <ChipSelect
-          options={MATCH_TYPES}
-          value={matchType}
-          onChange={setMatchType}
-          containerClass="grid grid-cols-2 gap-2"
-        />
-      </section>
+      {/* Match type — sadece Conclave üyeleri görür */}
+      {canChooseType && (
+        <section>
+          <SectionHeader title="Maç Tipi" />
+          <ChipSelect
+            options={MATCH_TYPES}
+            value={matchType}
+            onChange={setMatchType}
+            containerClass="grid grid-cols-2 gap-2"
+          />
+        </section>
+      )}
 
       {/* Location */}
       <section>
@@ -191,7 +252,7 @@ export default function AddEntry({ player, lastLocation, onSave, saving = false 
             : 'cursor-not-allowed bg-field-cardhi text-slate-600'
         }`}
       >
-        {saving ? 'Kaydediliyor…' : 'Kaydet'}
+        {saving ? 'Kaydediliyor…' : editing ? 'Değişiklikleri kaydet' : 'Kaydet'}
       </motion.button>
     </div>
   )

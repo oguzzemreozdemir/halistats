@@ -6,7 +6,7 @@ export default function AppShell({ tabs, active, onChange, playerName, children,
   return (
     <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-20 px-4 pt-[max(14px,env(safe-area-inset-top))] pb-2 backdrop-blur-md">
+      <header className="sticky top-0 z-20 bg-field-bg px-4 pt-[max(14px,env(safe-area-inset-top))] pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo />
@@ -31,10 +31,10 @@ export default function AppShell({ tabs, active, onChange, playerName, children,
         <AnimatePresence mode="wait">
           <motion.div
             key={pageKey}
-            initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
             {children}
           </motion.div>

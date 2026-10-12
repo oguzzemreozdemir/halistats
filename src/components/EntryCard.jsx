@@ -3,21 +3,31 @@ import Avatar from './Avatar'
 import { relativeDateLabel, matchTypeLabel, isConclave } from '../utils/calculations'
 
 // Recent-activity card. Goals & assists are visually emphasized.
-export default function EntryCard({ entry, playerName, index = 0 }) {
+// - İsme/avatara dokununca o oyuncunun profili açılır (onOpenProfile).
+// - Sadece kendi maçında (ya da yöneticiyse) "⋯" menüsü görünür (onMenu).
+export default function EntryCard({ entry, playerName, index = 0, onOpenProfile, onMenu }) {
+  const openProfile = onOpenProfile ? () => onOpenProfile(entry.playerId) : undefined
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.04, 0.3), type: 'spring', stiffness: 300, damping: 28 }}
-      className="flex items-center gap-3 rounded-2xl border border-field-border bg-field-card/70 px-3.5 py-3 backdrop-blur-sm shadow-soft"
+      className="flex items-center gap-3 rounded-2xl border border-field-border bg-field-card/70 px-3.5 py-3 shadow-soft"
     >
-      <Avatar name={playerName} size="md" />
+      <button type="button" onClick={openProfile} disabled={!openProfile} className="shrink-0">
+        <Avatar name={playerName} size="md" />
+      </button>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-display text-[15px] font-bold capitalize text-white">
+          <button
+            type="button"
+            onClick={openProfile}
+            disabled={!openProfile}
+            className="truncate font-display text-[15px] font-bold capitalize text-white"
+          >
             {playerName}
-          </span>
+          </button>
           <span className="truncate text-[12px] text-slate-400">
             {entry.city} / {entry.district}
           </span>
@@ -58,6 +68,16 @@ export default function EntryCard({ entry, playerName, index = 0 }) {
             Asist
           </div>
         </div>
+        {onMenu && (
+          <button
+            type="button"
+            aria-label="Maç seçenekleri"
+            onClick={() => onMenu(entry)}
+            className="-mr-1.5 flex h-9 w-7 items-center justify-center rounded-lg text-[20px] leading-none text-slate-400 active:bg-field-cardhi"
+          >
+            ⋯
+          </button>
+        )}
       </div>
     </motion.div>
   )

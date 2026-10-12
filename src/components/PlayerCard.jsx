@@ -6,7 +6,7 @@ export default function PlayerCard({ title, playerName, value, valueLabel, hint 
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
-      className="relative overflow-hidden rounded-2xl border border-field-border bg-field-card/70 p-4 backdrop-blur-sm shadow-soft"
+      className="relative overflow-hidden rounded-2xl border border-field-border bg-field-card/70 p-4 shadow-soft"
     >
       <div className="field-stripes pointer-events-none absolute inset-0 opacity-60" />
       <div className="relative">

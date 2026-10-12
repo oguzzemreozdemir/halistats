@@ -26,7 +26,7 @@ export default function CounterInput({ label, value, onChange, min = 0, max = 30
   )
 
   return (
-    <div className="rounded-2xl border border-field-border bg-field-card/70 px-3 py-3 backdrop-blur-sm">
+    <div className="rounded-2xl border border-field-border bg-field-card/70 px-3 py-3">
       <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
         {label}
       </div>

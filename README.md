@@ -20,30 +20,11 @@ VITE_SUPABASE_ANON_KEY=sb_publishable_xxx   # anon / publishable key
 
 Üretim derlemesi: `npm run build` → çıktı `dist/` klasörüne gelir.
 
-## Supabase tablosu (bir kez SQL Editor'da çalıştır)
+## Supabase kurulumu
 
-```sql
-create table if not exists public.matches (
-  id          uuid primary key default gen_random_uuid(),
-  player_id   text,
-  player_name text,
-  goals       integer not null default 0,
-  assists     integer not null default 0,
-  position    text,
-  city        text,
-  district    text,
-  match_date  date,
-  intensity   text check (intensity in ('Laubali','Normal','Tryhard')),
-  match_scope text check (match_scope in ('Kişisel','Conclave')),
-  is_conclave boolean not null default false,
-  created_at  timestamptz not null default now()
-);
-
-alter table public.matches enable row level security;
-create policy "anon read matches"  on public.matches for select to anon using (true);
-create policy "anon insert matches" on public.matches for insert to anon with check (true);
-create index if not exists matches_created_at_idx on public.matches (created_at desc);
-```
+Veritabanı SQL dosyaları bu repoda **tutulmaz** (eski PIN'ler içerdiği için); yöneticide durur.
+Hesap sistemi: kullanıcı adı + 6 haneli PIN (Supabase Auth, mail kullanılmaz).
+Supabase → Authentication → Email sağlayıcısında **"Confirm email" kapalı** olmalı.
 
 ## Vercel'e deploy (özet)
 

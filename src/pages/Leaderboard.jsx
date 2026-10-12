@@ -33,9 +33,10 @@ function secondaryFor(metric, entries) {
   }
 }
 
-export default function Leaderboard({ entries, players, currentPlayerId }) {
+export default function Leaderboard({ entries, players, currentPlayerId, onOpenProfile }) {
   const [metric, setMetric] = useState('goals')
-  const rows = leaderboard(entries, players, metric)
+  // Hiç maçı olmayan (yeni açılmış) hesaplar listeyi kalabalıklaştırmasın.
+  const rows = leaderboard(entries, players, metric).filter((r) => r.agg.entries > 0)
   const formatValue =
     metric === 'golMac' || metric === 'katGol' ? (v) => (v || 0).toFixed(2) : (v) => v
 
@@ -45,7 +46,7 @@ export default function Leaderboard({ entries, players, currentPlayerId }) {
         options={METRICS}
         value={metric}
         onChange={setMetric}
-        containerClass="no-scrollbar flex gap-2 overflow-x-auto pb-0.5"
+        containerClass="flex flex-wrap gap-2"
       />
       {metric === 'katGol' && (
         <div className="rounded-xl border border-grass/25 bg-grass/8 px-3.5 py-2.5 text-[12px] text-slate-300">
@@ -59,6 +60,7 @@ export default function Leaderboard({ entries, players, currentPlayerId }) {
         formatValue={formatValue}
         secondaryFn={secondaryFor(metric, entries)}
         highlightId={currentPlayerId}
+        onRowClick={onOpenProfile}
       />
     </div>
   )

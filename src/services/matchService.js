@@ -72,3 +72,68 @@ export async function addMatch(draft) {
   }
   return rowToEntry(data)
 }
+
+// Kendi maçını düzenle. player_id ve created_at değişmez → sıralama bozulmaz.
+export async function updateMatch(id, draft) {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase yapılandırılmadı (.env eksik).')
+  }
+  // eslint-disable-next-line no-unused-vars
+  const { player_id, player_name, ...fields } = draftToRow(draft)
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) {
+    console.error('[matchService.updateMatch] hata:', error)
+    throw error
+  }
+  return rowToEntry(data)
+}
+
+// Maç sil (kendi maçı ya da yönetici). Silinmediyse (yetki yok) hata ver.
+export async function deleteMatch(id) {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase yapılandırılmadı (.env eksik).')
+  }
+  const { data, error } = await supabase.from(TABLE).delete().eq('id', id).select('id')
+  if (error) {
+    console.error('[matchService.deleteMatch] hata:', error)
+    throw error
+  }
+  if (!data || data.length === 0) throw new Error('Bu maçı silme yetkin yok.')
+}
+
+// ── Yedek: tüm maçları CSV olarak indir (Excel Türkçe karakterleri doğru açsın diye BOM'lu)
+export function downloadMatchesCsv(entries, players) {
+  const nameOf = (pid) => players.find((p) => p.id === pid)?.name || pid
+  const header = [
+    'oyuncu', 'player_id', 'mac_tarihi', 'il', 'ilce', 'mevki', 'mod',
+    'mac_tipi', 'gol', 'asist', 'eklenme_zamani', 'id',
+  ]
+  const esc = (v) => {
+    const s = v == null ? '' : String(v)
+    return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+  }
+  const rows = [...entries]
+    .sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)))
+    .map((e) =>
+      [
+        nameOf(e.playerId), e.playerId, e.matchDate, e.city, e.district, e.position,
+        e.matchMode, e.matchType === 'conclave' ? 'Conclave' : 'Kişisel',
+        e.goals, e.assists, e.createdAt, e.id,
+      ].map(esc).join(','),
+    )
+  const csv = '﻿' + [header.join(','), ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `halistats-yedek-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 2000)
+}
